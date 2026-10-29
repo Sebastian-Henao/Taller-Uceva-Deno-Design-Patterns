@@ -80,22 +80,107 @@ class TreeTypeFactory {
   }
 }
 
-// Código provisional para probar la cache de la fábrica.
-// Se reemplaza por el código cliente definitivo en el siguiente paso.
+// 3. Clase que representa un Árbol - Tree
+// [ROL: Contexto]
+// Guarda SOLO el estado extrínseco (propio de cada árbol): su posición x, y.
+// Los datos pesados y repetidos no se copian: se guarda una referencia al TreeType.
+// Por eso crear 10.000 Tree es barato.
+class Tree {
+  private x: number;
+  private y: number;
+  private type: TreeType;
+
+  constructor(x: number, y: number, type: TreeType) {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+  }
+
+  // El árbol delega el dibujo a su flyweight, pasándole su estado extrínseco
+  draw(): void {
+    this.type.draw(this.x, this.y);
+  }
+}
+
+// 4. Bosque - Forest
+// [ROL: Cliente]
+// Planta y dibuja los árboles. Pide los TreeType a la fábrica
+// para no crear tipos repetidos.
+class Forest {
+  private trees: Tree[] = [];
+  private factory: TreeTypeFactory;
+
+  constructor(factory: TreeTypeFactory) {
+    this.factory = factory;
+  }
+
+  plantTree(
+    x: number,
+    y: number,
+    name: string,
+    color: string,
+    texture: string,
+  ): void {
+    // Estado intrínseco -> se obtiene compartido desde la fábrica
+    const type = this.factory.getTreeType(name, color, texture);
+    // Estado extrínseco -> se guarda en el propio árbol
+    this.trees.push(new Tree(x, y, type));
+  }
+
+  // Dibuja solo los primeros "limit" árboles para no llenar la consola
+  draw(limit: number): void {
+    this.trees.slice(0, limit).forEach((tree) => tree.draw());
+  }
+
+  getTreeCount(): number {
+    return this.trees.length;
+  }
+}
+
+// 5. Código Cliente para probar el Flyweight
 function main() {
+  // Paso 1: Crear la fábrica de flyweights y el bosque que la usa.
   const factory = new TreeTypeFactory();
+  const forest = new Forest(factory);
 
-  const oak1 = factory.getTreeType('Roble', 'Verde oscuro', 'Rugosa');
-  const oak2 = factory.getTreeType('Roble', 'Verde oscuro', 'Rugosa');
-  const pine = factory.getTreeType('Pino', 'Verde', 'Agujas');
+  // Paso 2: Definir las 3 especies disponibles (estado intrínseco).
+  const species = [
+    { name: 'Roble', color: 'Verde oscuro', texture: 'Rugosa' },
+    { name: 'Pino', color: 'Verde', texture: 'Agujas' },
+    { name: 'Cerezo', color: 'Rosado', texture: 'Lisa' },
+  ];
 
-  oak1.draw(10, 20);
-  oak2.draw(30, 40);
-  pine.draw(50, 60);
+  // Paso 3: Pedir cuántos árboles plantar (por defecto 10.000).
+  const input = Number(prompt('¿Cuántos árboles quieres plantar?', '10000'));
+  const totalTrees = Number.isInteger(input) && input > 0 ? input : 10000;
 
-  // oak1 y oak2 son el MISMO objeto: la fábrica no creó uno nuevo
-  console.log(`¿oak1 y oak2 son el mismo objeto? %c${oak1 === oak2}`, COLORS.yellow);
-  console.log(`TreeType creados: %c${factory.getTotalTypes()}`, COLORS.yellow);
+  // Paso 4: Plantar los árboles.
+  // Cada árbol toma una especie de forma rotativa y una posición calculada,
+  // así cada uno tiene coordenadas distintas (estado extrínseco).
+  for (let i = 0; i < totalTrees; i++) {
+    const { name, color, texture } = species[i % species.length];
+    const x = (i * 7) % 500;
+    const y = (i * 13) % 500;
+    forest.plantTree(x, y, name, color, texture);
+  }
+
+  // Paso 5: Dibujar solo unos pocos árboles como muestra.
+  console.log('\n%cMuestra de los primeros 6 árboles:', COLORS.cyan);
+  forest.draw(6);
+
+  // Paso 6: Comparar cuántos árboles hay frente a cuántos TreeType se crearon.
+  console.log(
+    `\nTotal de árboles plantados: %c${forest.getTreeCount()}`,
+    COLORS.yellow,
+  );
+  console.log(
+    `Total de TreeType creados realmente: %c${factory.getTotalTypes()}`,
+    COLORS.yellow,
+  );
+  console.log(
+    '%cSin Flyweight, nombre, color y textura se habrían copiado en cada árbol.',
+    COLORS.gray,
+  );
 }
 
 main();
