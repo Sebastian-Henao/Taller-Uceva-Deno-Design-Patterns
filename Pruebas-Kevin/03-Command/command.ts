@@ -129,23 +129,103 @@ class RemoveSongCommand implements Command {
   }
 }
 
-// Código provisional para probar los comandos sin invocador.
-// Se reemplaza por el código cliente con History en el siguiente paso.
+// 4. Clase Invocador - History
+// [ROL: Invocador]
+// Ejecuta los comandos y los guarda en dos pilas:
+//  - done: comandos ejecutados (se pueden deshacer).
+//  - undone: comandos deshechos (se pueden rehacer).
+// No sabe si el comando agrega o quita canciones: solo llama execute() y undo().
+class History {
+  private done: Command[] = [];
+  private undone: Command[] = [];
+
+  // Ejecuta un comando nuevo y lo registra
+  run(command: Command): void {
+    command.execute();
+    this.done.push(command);
+    // Una acción nueva invalida lo que se había deshecho: ya no se puede rehacer
+    this.undone = [];
+  }
+
+  // Deshace el último comando ejecutado
+  undo(): void {
+    const command = this.done.pop();
+
+    if (!command) {
+      console.log('%cNo hay nada para deshacer', COLORS.gray);
+      return;
+    }
+
+    command.undo();
+    this.undone.push(command);
+  }
+
+  // Vuelve a ejecutar el último comando deshecho
+  redo(): void {
+    const command = this.undone.pop();
+
+    if (!command) {
+      console.log('%cNo hay nada para rehacer', COLORS.gray);
+      return;
+    }
+
+    command.execute();
+    this.done.push(command);
+  }
+}
+
+// * Diferencia con Strategy:
+// * - Command encapsula una ACCIÓN (con sus datos) como objeto para poder
+// *   guardarla, encolarla y revertirla (undo/redo).
+// * - Strategy encapsula un ALGORITMO para intercambiarlo por otro que
+// *   resuelve lo mismo de otra forma; no guarda historial ni se revierte.
+
+// Muestra el estado actual de la lista de reproducción
+function showPlaylist(playlist: Playlist): void {
+  const songs = playlist.getSongs();
+  const text = songs.length > 0 ? songs.join(' | ') : '(vacía)';
+  console.log(`Lista: %c[ ${text} ]\n`, COLORS.cyan);
+}
+
+// 5. Código Cliente para probar el patrón Command
 function main() {
+  // Paso 1: Crear el receptor (Playlist) y el invocador (History).
   const playlist = new Playlist();
+  const history = new History();
 
-  const addCommand = new AddSongCommand(playlist, 'Bohemian Rhapsody');
-  const removeCommand = new RemoveSongCommand(playlist, 'Bohemian Rhapsody');
+  // Paso 2: Pedir las dos canciones (si no se escribe nada se usan valores por defecto).
+  const firstSong = prompt('Primera canción:') || 'Bohemian Rhapsody';
+  const secondSong = prompt('Segunda canción:') || 'Imagine';
 
-  addCommand.execute();
-  console.log(playlist.getSongs());
+  // Paso 3: Agregar la primera canción.
+  console.log('\n%cPaso 3: Agregar primera canción', COLORS.yellow);
+  history.run(new AddSongCommand(playlist, firstSong));
+  showPlaylist(playlist);
 
-  removeCommand.execute();
-  console.log(playlist.getSongs());
+  // Paso 4: Agregar la segunda canción.
+  console.log('%cPaso 4: Agregar segunda canción', COLORS.yellow);
+  history.run(new AddSongCommand(playlist, secondSong));
+  showPlaylist(playlist);
 
-  // Cada comando sabe revertirse por sí mismo
-  removeCommand.undo();
-  console.log(playlist.getSongs());
+  // Paso 5: Quitar la primera canción.
+  console.log('%cPaso 5: Quitar primera canción', COLORS.yellow);
+  history.run(new RemoveSongCommand(playlist, firstSong));
+  showPlaylist(playlist);
+
+  // Paso 6: Deshacer (vuelve la canción quitada a su posición original).
+  console.log('%cPaso 6: Deshacer', COLORS.yellow);
+  history.undo();
+  showPlaylist(playlist);
+
+  // Paso 7: Deshacer otra vez (quita la segunda canción agregada).
+  console.log('%cPaso 7: Deshacer', COLORS.yellow);
+  history.undo();
+  showPlaylist(playlist);
+
+  // Paso 8: Rehacer (vuelve a agregar la segunda canción).
+  console.log('%cPaso 8: Rehacer', COLORS.yellow);
+  history.redo();
+  showPlaylist(playlist);
 }
 
 main();
