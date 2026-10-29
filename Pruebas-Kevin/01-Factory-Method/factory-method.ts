@@ -127,7 +127,6 @@ class DarkKnight implements Enemy {
 // Contiene el flujo de combate común a todas las zonas (startCombat).
 // No sabe qué enemigo va a aparecer: se lo pide al método fábrica createEnemy(),
 // que cada subclase implementa a su manera.
-// deno-lint-ignore no-unused-vars -- Las zonas concretas que la usan se agregan en el siguiente paso
 abstract class Zone {
   // [ROL: Método Fábrica]
   // Es abstracto: obliga a cada zona concreta a decidir qué enemigo crea.
@@ -177,15 +176,81 @@ abstract class Zone {
   }
 }
 
-// Código provisional para probar los productos concretos.
-// Se reemplaza por el código cliente definitivo en el siguiente paso.
-function main() {
-  const enemies: Enemy[] = [new Wolf(), new Troll(), new DarkKnight()];
+// 4. Clases Concretas de Zonas
+// [ROL: Creador Concreto]
+// Cada zona solo sobrescribe el método fábrica para decidir qué enemigo crea.
+// No repiten el flujo de combate: lo heredan de Zone.
 
-  enemies.forEach((enemy) => {
-    console.log(`${enemy.getName()} - Vida: ${enemy.getHealth()}`);
-    enemy.attack();
-  });
+class ForestZone extends Zone {
+  protected createEnemy(): Enemy {
+    return new Wolf();
+  }
+
+  protected getZoneName(): string {
+    return 'Bosque';
+  }
+}
+
+class CaveZone extends Zone {
+  protected createEnemy(): Enemy {
+    return new Troll();
+  }
+
+  protected getZoneName(): string {
+    return 'Cueva';
+  }
+}
+
+class CastleZone extends Zone {
+  protected createEnemy(): Enemy {
+    return new DarkKnight();
+  }
+
+  protected getZoneName(): string {
+    return 'Castillo';
+  }
+}
+
+// * Agregar una zona nueva (por ejemplo un Volcán con un Dragón) NO requiere
+// * modificar Zone, startCombat() ni las otras zonas: basta con crear
+// * la clase del enemigo (Dragon) y su zona (VolcanoZone), y registrarla abajo.
+
+// 5. Código Cliente para Probar
+// El cliente trabaja solo con el tipo abstracto Zone, nunca con new Wolf(), new Troll()...
+function main() {
+  // Paso 1: Registrar las zonas disponibles.
+  // El mapa guarda objetos del tipo abstracto Zone.
+  const zones: Record<string, Zone> = {
+    bosque: new ForestZone(),
+    cueva: new CaveZone(),
+    castillo: new CastleZone(),
+  };
+
+  // Paso 2: Pedir los datos del héroe.
+  // Si no se escribe nada se usan valores por defecto.
+  const heroName = prompt('¿Cómo se llama tu héroe?') || 'Zar';
+  const zoneOption = (
+    prompt('¿A qué zona quieres ir? (bosque/cueva/castillo/todas)') || 'todas'
+  ).toLowerCase();
+
+  const heroDamage = 25;
+
+  // Paso 3: Elegir qué zonas recorrer según la opción del usuario.
+  let selectedZones: Zone[];
+
+  if (zoneOption === 'todas') {
+    selectedZones = Object.values(zones);
+  } else if (zones[zoneOption]) {
+    selectedZones = [zones[zoneOption]];
+  } else {
+    console.log(`%cLa zona "${zoneOption}" no existe`, COLORS.red);
+    return;
+  }
+
+  // Paso 4: Iniciar el combate en cada zona.
+  // Aquí no hay if/else por tipo de enemigo: cada zona crea el suyo
+  // gracias al método fábrica, y el flujo de combate es el mismo.
+  selectedZones.forEach((zone) => zone.startCombat(heroName, heroDamage));
 }
 
 main();
