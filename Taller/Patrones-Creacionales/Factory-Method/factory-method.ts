@@ -24,7 +24,7 @@
  * https://refactoring.guru/es/design-patterns/factory-method
  */
 
-import { COLORS } from '../../helpers/colors.ts';
+import { COLORS } from '../../../helpers/colors.ts';
 
 // 1. Interfaz Enemy
 // [ROL: Producto]

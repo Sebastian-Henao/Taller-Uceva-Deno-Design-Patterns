@@ -18,6 +18,9 @@
 | 2 | Observer | Comportamiento (obligatorio) | `Taller/Patrones-Comportamiento/Observer/observer.ts` |
 | 3 | Singleton | Creacional | `Taller/Patrones-Creacionales/Singleton/singleton.ts` |
 | 4 | Strategy | Comportamiento | `Taller/Patrones-Comportamiento/Strategy/strategy.ts` |
+| 5 | Factory Method | Creacional | `Taller/Patrones-Creacionales/Factory-Method/factory-method.ts` |
+| 6 | Flyweight | Estructural | `Taller/Patrones-Estructurales/Flyweight/flyweight.ts` |
+| 7 | Command | Comportamiento | `Taller/Patrones-Comportamiento/Command/command.ts` |
 
 ## Descripción de cada ejercicio
 
@@ -32,6 +35,15 @@ Varios dispensadores entregan turnos a los pacientes. Al compartir una única in
 
 ### Strategy — Navegación GPS
 El cálculo de la ruta cambia según el medio de transporte (caminando, bicicleta o carro). Cada forma de calcularla vive en su propia clase y el GPS puede cambiar de estrategia en tiempo de ejecución sin modificar su código.
+
+### Factory Method — Enemigos por zona en un videojuego
+Cada zona (bosque, cueva y castillo) tiene su propio enemigo, pero el flujo de combate es el mismo. La clase abstracta `Zone` define el combate una sola vez y cada zona concreta sobrescribe el método fábrica `createEnemy()` para crear su enemigo, de modo que agregar una zona nueva no obliga a modificar el combate. El programa pide el nombre del héroe y la zona (por defecto `Zar` y todas las zonas).
+
+### Flyweight — Bosque de árboles
+Se plantan 10.000 árboles de solo 3 especies. El nombre, color y textura (estado intrínseco) se guardan en objetos `TreeType` compartidos que entrega una fábrica con caché, y cada árbol guarda únicamente su posición (estado extrínseco), así que solo se crean 3 `TreeType` en lugar de repetir esos datos 10.000 veces.
+
+### Command — Lista de reproducción con deshacer/rehacer
+Agregar y quitar canciones son comandos que saben ejecutarse y revertirse guardando la posición de la canción. El historial (`History`) los guarda en dos pilas para poder deshacer y rehacer sin conocer los detalles de cada acción. El programa pide dos canciones (por defecto `Bohemian Rhapsody` e `Imagine`).
 
 ## Cómo ejecutar
 

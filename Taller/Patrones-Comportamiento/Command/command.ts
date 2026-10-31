@@ -24,7 +24,7 @@
  * https://refactoring.guru/es/design-patterns/command
  */
 
-import { COLORS } from '../../helpers/colors.ts';
+import { COLORS } from '../../../helpers/colors.ts';
 
 // 1. Interfaz Command
 // [ROL: Comando]

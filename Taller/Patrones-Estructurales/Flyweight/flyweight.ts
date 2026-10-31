@@ -26,7 +26,7 @@
  * https://refactoring.guru/es/design-patterns/flyweight
  */
 
-import { COLORS } from '../../helpers/colors.ts';
+import { COLORS } from '../../../helpers/colors.ts';
 
 // 1. Clase que representa el tipo de árbol - TreeType
 // [ROL: Flyweight]
