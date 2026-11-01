@@ -21,6 +21,9 @@
 | 5 | Factory Method | Creacional | `Taller/Patrones-Creacionales/Factory-Method/factory-method.ts` |
 | 6 | Flyweight | Estructural | `Taller/Patrones-Estructurales/Flyweight/flyweight.ts` |
 | 7 | Command | Comportamiento | `Taller/Patrones-Comportamiento/Command/command.ts` |
+| 8 | Builder | Creacional (obligatorio) | `Taller/Patrones-Creacionales/Builder/builder.ts` |
+| 9 | Facade | Estructural | `Taller/Patrones-Estructurales/Facade/facade.ts` |
+| 10 | Template Method | Comportamiento | `Taller/Patrones-Comportamiento/Template-Method/template-method.ts` |
 
 ## Descripción de cada ejercicio
 
@@ -44,6 +47,15 @@ Se plantan 10.000 árboles de solo 3 especies. El nombre, color y textura (estad
 
 ### Command — Lista de reproducción con deshacer/rehacer
 Agregar y quitar canciones son comandos que saben ejecutarse y revertirse guardando la posición de la canción. El historial (`History`) los guarda en dos pilas para poder deshacer y rehacer sin conocer los detalles de cada acción. El programa pide dos canciones (por defecto `Bohemian Rhapsody` e `Imagine`).
+
+### Builder — Itinerarios de viaje
+Un viaje combina destino, duración, transporte, alojamiento y actividades. `ItinerarioBuilder` permite configurar cada parte paso a paso y construir itinerarios distintos sin un constructor con muchos parámetros.
+
+### Facade — Compra en línea
+Procesar una compra requiere coordinar inventario, pago y confirmación por correo. `CompraFacade` presenta una operación sencilla al cliente, valida los datos y coordina esos servicios; el ejemplo muestra una compra exitosa y otra sin existencias suficientes.
+
+### Template Method — Exportación de reportes de ventas
+Los reportes deben seguir el mismo flujo de validación, formateo y entrega, aunque se exporten en formatos distintos. `ExportadorDeVentas` define ese flujo y `ExportadorCSV` y `ExportadorJSON` implementan el formato de salida.
 
 ## Cómo ejecutar
 
